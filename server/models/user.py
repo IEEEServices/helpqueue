@@ -14,6 +14,7 @@ class User(Base):
     name = Column(String)
 
     affiliation = Column(String)
+    team = Column(String)
 
     contact_info = Column(String)
 
@@ -27,6 +28,7 @@ class User(Base):
     date_created = Column(DateTime, default=datetime.datetime.now)
     date_updated = Column(DateTime, default=datetime.datetime.now)
     date_last_signin = Column(DateTime, default=datetime.datetime.now)
+    date_last_activity = Column(DateTime, default=datetime.datetime.now)
 
     def __init__(self, name, email, org=None):
         self.name = name
@@ -34,6 +36,10 @@ class User(Base):
 
     def sign_in(self):
         self.date_last_signin = datetime.datetime.now()
+        update_db()
+        
+    def is_active(self):
+        self.date_last_activity = datetime.datetime.now()
         update_db()
 
     def json(self):
@@ -43,5 +49,6 @@ class User(Base):
             'name': self.name,
             'admin_is': self.admin_is,
             'mentor_is': self.mentor_is,
-            'skills': self.skills
+            'skills': self.skills,
+            'team': self.team
         }

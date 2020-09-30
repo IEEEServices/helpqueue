@@ -38,6 +38,24 @@ def mentor_rankings():
     
     return sorted(ret, key=(lambda x: -x["smooth_rating"]))
 
+
+def get_hackers_online():
+    return User.query.filter(
+        and_(
+            User.mentor_is == False,
+            User.date_last_activity > datetime.datetime.now() - datetime.timedelta(seconds=60)
+        )).count()
+
+
+@should_cache_function("mentors_online", 60)
+def get_mentors_online():
+    return User.query.filter(
+        and_(
+            User.mentor_is == True,
+            User.date_last_activity > datetime.datetime.now() - datetime.timedelta(seconds=60)
+        )).count()
+
+
 def get_all_users(user, override=False):
     """
     Gets all users
@@ -75,6 +93,11 @@ def set_name(user, name):
 
 def set_affiliation(user, affiliation):
     user.affiliation = affiliation
+    db.session.commit()
+
+
+def set_team(user, team):
+    user.team = team
     db.session.commit()
 
 

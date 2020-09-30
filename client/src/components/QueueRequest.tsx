@@ -14,11 +14,12 @@ import {
   Header,
   MessageHeader,
   Select,
+  Icon
 } from "semantic-ui-react";
 import useLogin from "../hooks/useLogin";
 import ServerHelper, { ServerURL } from "./ServerHelper";
 import useViewer from "../hooks/useViewer";
-import { Ticket, User } from "./Types";
+import { Ticket, User, DashStats } from "./Types";
 import createAlert, { AlertType } from "./Alert";
 
 const QueueRequest = () => {
@@ -31,12 +32,8 @@ const QueueRequest = () => {
   const [cTicketQuestion, setCTicketQuestion] = useState("");
   const [cTicketContact, setCTicketContact] = useState("");
   const [cTicketRating, setCTicketRating] = useState(0);
-  const locationOptions = ((settings && settings.locations) || "no location")
-    .split(",")
-    .map((l) => ({ key: l, value: l, text: l }));
-  const [cTicketLocation, setCTicketLocation] = useState(
-    locationOptions[0].value
-  );
+  const [dashStats, setDashStats] = useState<DashStats | null>(null);
+
   const [canMakeNotification, setCanMakeNotification] = useState(false);
 
   const getTicket = useCallback(async () => {
@@ -68,7 +65,7 @@ const QueueRequest = () => {
       }
       setTicket(res.ticket);
       setUser(res.user);
-      setQueueLength(res.queue_position + 1);
+      setQueueLength(res.queue_position);
     } else {
       setTicket(null);
       if (isLoggedIn) {
@@ -114,6 +111,33 @@ const QueueRequest = () => {
       createAlert(AlertType.Error, "Could not rate ticket");
     }
   };
+
+  const getDashStats = async () => {
+    const res = await ServerHelper.post(ServerURL.userHackerDashStats, getCredentials());
+    if (res.success) {
+      setDashStats(res.stats);
+    } else {
+      setDashStats(null);
+      if (isLoggedIn) {
+        if (
+          window.confirm(
+            "Your credentials appear to be invalid... Do you want to log out and try again?"
+          )
+        ) {
+          logout();
+        }
+      }
+    }
+  };
+
+  useEffect(() => {
+    // On load check to see what the status is of the ticket
+    getDashStats();
+
+    const interval = setInterval(getDashStats, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
   useEffect(() => {
     // On load check to see what the status is of the ticket
     getTicket();
@@ -124,6 +148,27 @@ const QueueRequest = () => {
   if (!isLoggedIn) {
     window.location.href = "/login";
     return null;
+  }
+
+  let estimatesCard = null;
+  if (dashStats != null) {
+    estimatesCard = (<>
+      <p>Estimated Response time: <span>{
+        dashStats.estimates.estResponse > 60 ? dashStats.estimates.estResponse / 60 : dashStats.estimates.estResponse
+      }</span>&nbsp;{
+        dashStats.estimates.estResponse > 60 ? "minutes" : "seconds"
+      },&nbsp;
+      Estimated Completion time: <span>{
+        dashStats.estimates.estCompletion > 60 ? dashStats.estimates.estCompletion / 60 : dashStats.estimates.estCompletion
+      }</span>&nbsp;{
+        dashStats.estimates.estCompletion > 60 ? "minutes" : "seconds"
+      }</p>
+      <p><Icon fitted name="circle" color={dashStats.countMentors == 0 ? "red" : "green"} />&nbsp;<span>{dashStats.countMentors}</span>&nbsp;Mentor(s) online</p>
+    </>);
+  } else {
+    estimatesCard = (<>
+      <p>Waiting for mentors!</p>
+    </>);
   }
 
   let queueCard = null;
@@ -149,14 +194,6 @@ const QueueRequest = () => {
               onChange={(e) => setCTicketQuestion(e.currentTarget.value)}
             />
           </Form.Field>
-          <Form.Field required>
-            <label>What event?</label>
-            <Select
-              value={cTicketLocation}
-              options={locationOptions}
-              onChange={(_e, data) => setCTicketLocation("" + data.value || "")}
-            />
-          </Form.Field>
           <Form.Field>
             <label>Contact Info:</label>
             <Input
@@ -175,21 +212,11 @@ const QueueRequest = () => {
               createAlert(AlertType.Warning, "You need to ask a question!");
               return;
             }
-            if (cTicketLocation.length === 0) {
-              createAlert(
-                AlertType.Warning,
-                "Please provide a location so a mentor can find you!"
-              );
-              return;
-            }
             setCTicketRating(0);
             const res = await ServerHelper.post(ServerURL.createTicket, {
               ...getCredentials(),
-              data: JSON.stringify({
-                question: cTicketQuestion,
-                location: cTicketLocation,
-                contact: cTicketContact.length === 0 ? "N/A" : cTicketContact,
-              }),
+              question: cTicketQuestion,
+              contact: cTicketContact.length === 0 ? "N/A" : cTicketContact
             });
             if (res.success) {
               setTicket(res.ticket);
@@ -219,7 +246,7 @@ const QueueRequest = () => {
         <p>
           <b>Question:</b> {ticket.data.question}
           <br />
-          <b>Location:</b> {ticket.data.location}
+          <b>Team:</b> {user == null ? "Evil Team" :  user.team}
           <br />
           <b>Contact:</b> {ticket.data.contact}
         </p>
@@ -289,6 +316,9 @@ const QueueRequest = () => {
   }
   return (
     <Container>
+      <Card color="blue">
+        {estimatesCard}
+      </Card>
       <Card color="orange">
         <div>
           {user && user.admin_is ? (
