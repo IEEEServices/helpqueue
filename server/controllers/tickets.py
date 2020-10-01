@@ -87,6 +87,7 @@ def claim_ticket(user, ticket):
         ticket.claimant = user
         ticket.date_updated = now
         ticket.status = 1
+        ticket.mentor_slackUID = user.slackUID
         db.session.commit()
         return True
     return False
@@ -102,6 +103,7 @@ def unclaim_ticket(user, ticket):
     ticket.claimant = None
     ticket.date_updated = now
     ticket.status = 2
+    ticket.mentor_slackUID = ""
     db.session.commit()
     return True
 

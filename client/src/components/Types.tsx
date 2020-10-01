@@ -10,6 +10,7 @@ export type Ticket = {
   requested_by: string;
   claimed_by: string | null;
   minutes: number;
+  mentor_slackUID: string;
 };
 
 export type AdminStats = {
@@ -25,6 +26,7 @@ export type User = {
   admin_is: boolean;
   mentor_is: boolean;
   team: string;
+  slackUID: string;
 };
 
 // In server_constants.py
@@ -32,6 +34,7 @@ export type ClientSettings = {
   app_name: string;
   app_contact_email: string;
   jitsi_link: string;
+  slack_link: string;
   app_creator: string;
   queue_status: string;
   queue_message: string;

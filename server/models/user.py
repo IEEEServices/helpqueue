@@ -12,6 +12,7 @@ class User(Base):
 
     email = Column(String, unique=True, primary_key=True)
     name = Column(String)
+    slackUID = Column(String)
 
     affiliation = Column(String)
     team = Column(String)
@@ -50,5 +51,6 @@ class User(Base):
             'admin_is': self.admin_is,
             'mentor_is': self.mentor_is,
             'skills': self.skills,
+            'slackUID': self.slackUID,
             'team': self.team
         }

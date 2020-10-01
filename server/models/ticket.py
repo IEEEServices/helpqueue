@@ -29,6 +29,9 @@ class Ticket(Base):
     # 0 = created, 1 = claimed, 2 = unclaimed, 3 = closed, 4 = canceled, 5 = closed AND rated
     status = Column(Integer, default=0)
 
+    # The mentor's slack UID
+    mentor_slackUID = Column(String, default="")
+
     # The total amount of seconds time the ticket was claimed for
     total_claimed_seconds = Column(Integer, default=0)
 
@@ -66,5 +69,6 @@ class Ticket(Base):
             "status": self.status,
             "requested_by": self.requestor.name,
             "claimed_by": self.claimant.name if self.claimant else "",
-            "minutes": (now-self.date_created).total_seconds()//60
+            "minutes": (now-self.date_created).total_seconds()//60,
+            "mentor_slackUID": self.mentor_slackUID
         }

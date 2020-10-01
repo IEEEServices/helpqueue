@@ -281,6 +281,19 @@ const QueueRequest = () => {
             </a>
           ) : null}
         </p>
+        <p>
+          {settings &&
+          settings.slack_link &&
+          settings.slack_link.includes("://") &&
+          ticket.mentor_slackUID ? (
+            <>
+              <span>Mentor's Slack: </span>
+              <a href={settings.slack_link + "/team/" + ticket.mentor_slackUID} target="_blank">
+                {settings.slack_link + "/team/" + ticket.mentor_slackUID}
+              </a>
+            </>
+          ) : null}
+        </p>
         <Button onClick={cancelTicket} className="col-12" color="red">
           Cancel Ticket
         </Button>

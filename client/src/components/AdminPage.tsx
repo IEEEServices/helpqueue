@@ -223,6 +223,8 @@ const AdminPage = () => {
                 <li>app_contact_email (contact email for question)</li>
                 <li>github_client_id (client id for github)</li>
                 <li>github_client_secret (client secret for github)</li>
+                <li>jitsi_link (link for jitsi meetings. must include http:// or https://)</li>
+                <li>slack_link (slack link if jitsi doesn't work. formatted like https://[your workspace here].slack.com)</li>
               </ul>
 
               <Button

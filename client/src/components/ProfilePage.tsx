@@ -18,6 +18,7 @@ const ProfilePage = () => {
   const [user, setUser] = useState<User | null>(null);
   const [name, setName] = useState("");
   const [team, setTeam] = useState("");
+  const [slackUID, setSlackUID] = useState("");
   const [skills, setSkills] = useState<string[]>([]);
   const [permissionsGranted, setPermissionsGranted] = useState(true);
   const teamOptions = ((settings && settings.teams) || "no team")
@@ -29,6 +30,7 @@ const ProfilePage = () => {
     if (res.success) {
       setUser(res.user);
       setName(res.user.name || "");
+      setSlackUID(res.user.slackUID || "");
       setTeam(res.user.team || "");
     } else {
       setUser(null);
@@ -40,10 +42,18 @@ const ProfilePage = () => {
       createAlert(AlertType.Error, "Name must be nonempty");
       return;
     }
+
+    if (!slackUID.match(/^[A-Z0-9]*$/)) {
+      createAlert(AlertType.Error, "Please copy/paste correct Slack UID");
+      return;
+    }
+
+    console.log(slackUID)
     const res = await ServerHelper.post(ServerURL.userUpdate, {
       ...getCredentials(),
       name: name,
       team: team,
+      slackUID: slackUID,
       affiliation: "", // TODO(kevinfang): add company affiliation
       skills: skills.join(";"),
     });
@@ -52,7 +62,7 @@ const ProfilePage = () => {
       createAlert(AlertType.Success, "Updated profile");
     } else {
       setUser(null);
-      createAlert(AlertType.Error, "Failed to update profile");
+      createAlert(AlertType.Error, res.error ? res.error : "Failed to update profile");
     }
     if (shouldRedirect) {
       window.location.href = shouldRedirect;
@@ -107,6 +117,13 @@ const ProfilePage = () => {
               label="Display Name:"
               value={name}
               onChange={(e) => setName(e.target.value)}
+            />
+          </Form.Field>
+          <Form.Field>
+            <Input
+              label={<div className="ui"><a style={{ color: "rgb(0, 0, 0)" }} href="https://help.workast.com/hc/en-us/articles/360027461274-How-to-find-a-Slack-user-ID">Slack UID</a></div>}
+              value={slackUID}
+              onChange={(e) => setSlackUID(e.target.value)}
             />
           </Form.Field>
           <Form.Field>
