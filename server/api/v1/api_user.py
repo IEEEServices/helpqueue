@@ -61,6 +61,9 @@ USER_UPDATE_PARSER.add_argument('affiliation',
 USER_UPDATE_PARSER.add_argument('team',
                                 help='Needs team',
                                 required=True)
+USER_UPDATE_PARSER.add_argument('slackUID',
+                                help='Needs slackUID',
+                                required=True)
 USER_UPDATE_PARSER.add_argument('skills',
                                 help='Need skills',
                                 required=True)
@@ -71,8 +74,12 @@ class UserProfileUpdate(Resource):
     def post(self, data, user):
         if not user.mentor_is and not validate_team_name(data['team']):
             return return_failure("Invalid Team name")
-            
+        
+        if not validate_slackUID(data['slackUID']):
+            return return_failure("Invalid Slack UID")
+        
         set_name(user, data['name'])
+        set_slackUID(user, data['slackUID'])
         set_affiliation(user, data['affiliation'])
         set_team(user, data['team'])
         set_skills(user, data['skills'])

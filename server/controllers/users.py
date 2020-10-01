@@ -95,6 +95,9 @@ def set_affiliation(user, affiliation):
     user.affiliation = affiliation
     db.session.commit()
 
+def set_slackUID(user, uid):
+    user.slackUID = uid
+    db.session.commit()
 
 def set_team(user, team):
     user.team = team

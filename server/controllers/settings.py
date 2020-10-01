@@ -1,6 +1,7 @@
 from server.models.setting import Setting
 from server.app import db
 from server.server_constants import *
+import re
 import datetime
 
 from sqlalchemy import func, select
@@ -22,6 +23,10 @@ def validate_team_name(team_name):
             where(Setting.key == 'teams')
     row = db.session.execute(s).fetchone()
     return row[0]
+
+def validate_slackUID(slackUID):
+    regex = re.compile(r'^[A-Z0-9]+$')
+    return regex.match(slackUID) != None
 
 
 def get_public_settings():
