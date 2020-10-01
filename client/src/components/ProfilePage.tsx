@@ -43,7 +43,7 @@ const ProfilePage = () => {
       return;
     }
 
-    if (!slackUID.match(/^[A-Z0-9]+$/)) {
+    if (!slackUID.match(/^[A-Z0-9]*$/)) {
       createAlert(AlertType.Error, "Please copy/paste correct Slack UID");
       return;
     }
@@ -121,7 +121,7 @@ const ProfilePage = () => {
           </Form.Field>
           <Form.Field>
             <Input
-              label={<a href="https://help.workast.com/hc/en-us/articles/360027461274-How-to-find-a-Slack-user-ID">Slack UID</a>}
+              label={<div className="ui"><a style={{ color: "rgb(0, 0, 0)" }} href="https://help.workast.com/hc/en-us/articles/360027461274-How-to-find-a-Slack-user-ID">Slack UID</a></div>}
               value={slackUID}
               onChange={(e) => setSlackUID(e.target.value)}
             />

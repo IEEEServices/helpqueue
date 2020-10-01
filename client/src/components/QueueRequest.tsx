@@ -284,7 +284,8 @@ const QueueRequest = () => {
         <p>
           {settings &&
           settings.slack_link &&
-          settings.slack_link.includes("://") ? (
+          settings.slack_link.includes("://") &&
+          ticket.mentor_slackUID ? (
             <>
               <span>Mentor's Slack: </span>
               <a href={settings.slack_link + "/team/" + ticket.mentor_slackUID} target="_blank">

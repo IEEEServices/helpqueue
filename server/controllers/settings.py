@@ -25,7 +25,7 @@ def validate_team_name(team_name):
     return row[0]
 
 def validate_slackUID(slackUID):
-    regex = re.compile(r'^[A-Z0-9]+$')
+    regex = re.compile(r'^[A-Z0-9]*$')
     return regex.match(slackUID) != None
 
 
